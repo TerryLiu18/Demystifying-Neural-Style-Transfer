@@ -2,11 +2,29 @@
 
 This is the final project report of the course ECE228, Spring 2022. We re-implement three papers related to neural style transfer: (1) Image-based neural style transfer (Gatys); (2) Fast neural style transfer; (3) Adaptive instance normalization (AdaIn).  You can find the implementation of each paper in the separate folder. Intructions for running the code is included in each folder.
 
+- [Neural Style Transfer](#neural-style-transfer)
+  - [Usage](#usage)
+    - [1. Gatys](#1-gatys)
+      - [Train](#train)
+    - [2. Fast Neural Style Transfer](#2-fast-neural-style-transfer)
+      - [Train](#train-1)
+      - [Stylize Image](#stylize-image)
+      - [Stylize Video](#stylize-video)
+      - [Selfie Video](#selfie-video)
+    - [3. AdaIn](#3-adain)
+      - [Train](#train-2)
+      - [Test](#test)
+  - [Some results](#some-results)
+      - [1. Image-Based Neural Style Transfer](#1-image-based-neural-style-transfer)
+      - [2. Fast Neural Style Transfer](#2-fast-neural-style-transfer-1)
+      - [3. Adaptive Instance Normalization](#3-adaptive-instance-normalization)
+  - [Reference](#reference)
 
 
-## How to run the code
-[Download](http://images.cocodataset.org/zips/train2014.zip)
-COCO2014 dataset (13GB)
+## Usage
+Download the following datasets and add them to relative paths:
+1. [COCO2014 dataset (13GB)](http://images.cocodataset.org/zips/train2014.zip)
+2. [WikiArt](https://www.kaggle.com/c/painter-by-numbers/)
 ###  1. Gatys
 
 cd into `Gatys` folder, run the following command:
@@ -30,25 +48,7 @@ usage: main.py [--content CONTENT NAME]
 
 
 
-###  2. AdaIn
-
-cd into `AdaIn` folder, run the following command:
-
-#### Train
-
-```bash
-python main.py train --content_dir ./data/content --style_dir./data/style --epochs 20
-```
-
-#### Test
-
-```bash
-python main.py train --model_dir ./models/AdaIN.model -c ./img/content/blonde_girl.jpg -s ./img/style/antimonocromatismo.jpg
-```
-
-
-
-### 3. Fast Neural Style Transfer
+### 2. Fast Neural Style Transfer
 
 cd into `Fast-Neural-Style-Transfer` folder, run the following command:
 
@@ -68,6 +68,27 @@ python main.py style --content_path ./content_img/Niagara.jpg --model ./models/m
 
 ```bash
 python main.py video --video_path ./video/ballet.mp4 --model ./models/mosaic.model
+```
+
+#### Selfie Video
+
+```
+python selfie.py video --model mosaic.model
+```
+###  3. AdaIn
+
+cd into `AdaIn` folder, run the following command:
+
+#### Train
+
+```bash
+python main.py train --content_dir ./data/content --style_dir./data/style --epochs 20
+```
+
+#### Test
+
+```bash
+python main.py train --model_dir ./models/AdaIN.model -c ./img/content/blonde_girl.jpg -s ./img/style/antimonocromatismo.jpg
 ```
 
 

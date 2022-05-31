@@ -59,6 +59,12 @@ python main.py style --content_path ./content_img/Niagara.jpg --model ./models/m
 python main.py video --video_path ./video/ballet.mp4 --model ./models/mosaic.model
 ```
 
+### Selfie Video
+
+```
+python selfie.py video --model mosaic.model
+```
+
 ## Results
 
 ![blone_fast](./assets/blone_fast.png)
