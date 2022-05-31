@@ -8,8 +8,14 @@ import torch
 from torchvision import transforms
 from image_transform_net import ImageTransformNet
 
+import argparse
+
+main_args = argparse.ArgumentParser()
+main_args.add_argument("--model", type=str, default="mosaic.model")
+args = main_args.parse_args()
+
 # Get paths and set vars
-weights_fname = "cubist.model"
+weights_fname = args.model
 script_path = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -17,8 +23,8 @@ path_to_weights = os.path.join("models", weights_fname)
 resolution = (640, 480)
 
 # Change to GPU if desired
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-device = torch.device("cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = torch.device("cuda")
 
 # Load PyTorch Model
 model = ImageTransformNet()
@@ -39,7 +45,6 @@ if not cap.isOpened():
 
 while(True):
     # Grab frame and change to jpeg
-    print('start up my camera')
     ret, frame = cap.read()
     cv2_im = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     pil_im = Image.fromarray(cv2_im)
@@ -55,13 +60,14 @@ while(True):
     
     # Run inference and resize
     output = model(small_frame_tensor).cpu()
-    styled = output[0]
+    styled = output[0] * 255.
     styled = styled.clone().clamp(0, 255).detach().numpy()
     styled = styled.transpose(1, 2, 0).astype("uint8")
     styled_resized = cv2.resize(styled ,(frame.shape[0], frame.shape[1]))
 
     # Display frame and break if user hits q
     cv2.imshow('frame', styled_resized)
+    
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
