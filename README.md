@@ -115,8 +115,7 @@ python main.py train --model_dir ./models/AdaIN.model -c ./img/content/blonde_gi
 
 1. Change of styles
 
-![](img/pic1.gif)
-
+   <img src="img/pic1.gif"/>
 
 
 2. Change of parameters (style/content)
