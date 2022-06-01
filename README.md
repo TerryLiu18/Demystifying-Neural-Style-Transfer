@@ -109,7 +109,7 @@ python main.py train --model_dir ./models/AdaIN.model -c ./img/content/blonde_gi
 1. Fast Style Transfer with 4 Pre-trained Model
 <img src="img/fast.jpg" style="zoom:50%;" />
 
-2. Video Style Transfer
+2. Video Style Transfer (click the image and jump to the youtube video)
 [![video style transfer](./img/video_fast.jpg)](https://youtu.be/8TpW68AS0DU)
 
 
