@@ -2,6 +2,8 @@
 
 This is the final project report of the course ECE228, Spring 2022. We re-implement three papers related to neural style transfer: (1) Image-based neural style transfer (Gatys); (2) Fast neural style transfer; (3) Adaptive instance normalization (AdaIn).  You can find the implementation of each paper in the separate folder. Intructions for running the code is included in each folder.
 
+![](img/poster.png)
+
 - [Neural Style Transfer](#neural-style-transfer)
   - [Usage](#usage)
     - [1. Gatys](#1-gatys)
