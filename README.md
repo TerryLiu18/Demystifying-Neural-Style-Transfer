@@ -104,9 +104,11 @@ python main.py train --model_dir ./models/AdaIN.model -c ./img/content/blonde_gi
 
 
 #### 2. Fast Neural Style Transfer
-
+1. Fast Style Transfer with 4 Pre-trained Model
 <img src="img/fast.jpg" style="zoom:50%;" />
 
+2. Video Style Transfer
+[![video style transfer](./img/video_fast.jpg)](https://youtu.be/8TpW68AS0DU)
 
 
 
@@ -122,7 +124,7 @@ python main.py train --model_dir ./models/AdaIN.model -c ./img/content/blonde_gi
 
    <img src="img/alpha.gif" style="zoom: 50%;" />
 
-​																						set of parameters: [0, 0.25, 0.50, 0.75, 1]
+set of parameters: [0, 0.25, 0.50, 0.75, 1]
 
 
 
