@@ -34,7 +34,7 @@ cd into `Gatys` folder, run the following command:
 #### Train
 
 ```bash
-python main.py --content content_starry --style style_vangogh --alpha 1 --beta 1e4 --iter 400 --lr 1 --down True
+python main.py --content tubingen --style vangogh --alpha 1 --beta 1e4 --iter 400 --lr 1 --down True
 ```
 
 ```bash
