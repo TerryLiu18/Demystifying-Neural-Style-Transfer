@@ -32,7 +32,6 @@ def convert_img(tensor):
     img = img.numpy().squeeze()
     img = img.transpose(1,2,0)
     img = img * np.array((0.229, 0.224, 0.225)) + np.array((0.485, 0.456, 0.406))
-    img = np.clip(img,0,1)
     return img
 
 def get_features(model, img):
@@ -53,9 +52,9 @@ def get_features(model, img):
 
 def gram_matrix(tensor):
     batch_size, channel, width, height = tensor.size()
-    features = tensor.view(batch_size, channel, width * height)
+    features = tensor.view(batch_size * channel, width * height)
     G = torch.mm(features,features.t())
-    return G
+    return G.reshape(batch_size, channel, channel)
 
 
 def main(style_name, 
@@ -114,6 +113,7 @@ def main(style_name,
         optimizer.step(closure)
     output_img = convert_img(input_img)
     output_img = skimage.transform.resize(output_img,content_shape[:-1])
+    output_img = np.clip(output_img, 0, 1)
     plt.imsave("./results/{}.jpg".format(content_name.split("_")[-1]+"_"+style_name.split("_")[-1]), output_img)
 
 if __name__ == '__main__':
