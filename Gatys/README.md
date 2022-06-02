@@ -25,7 +25,7 @@ Unofficial Pytorch implementation of [A Neural Algorithm of Artistic Style](http
 ### Train
 
 ```
-python main.py --content content_starry --style style_vangogh --alpha 1 --beta 1e4 --iter 400 --lr 1 --down True
+python main.py --content tubingen --style vangogh --alpha 1 --beta 1e4 --iter 400 --lr 1 --down True
 ```
 
 ```

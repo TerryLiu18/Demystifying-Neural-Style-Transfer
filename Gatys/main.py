@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 import argparse
-from time import sleep
+import glob
 
 def str_to_bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
@@ -72,12 +72,15 @@ def main(style_name,
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     vgg.to(device).eval()
 
-    style = load_img("./data/{}.jpg".format(style_name)).to(device)
-    content = load_img("./data/{}.jpg".format(content_name)).to(device)
-    content_shape = plt.imread("./data/{}.jpg".format(content_name)).shape
-    style_feature = get_features(vgg,style)
-    content_feature = get_features(vgg,content)
-    style_grams = {layer_name: gram_matrix(style_feature[layer_name]) for layer_name in style_feature}
+    style_image_list = []
+    for file in glob.glob('./data/style/{}*'.format(args.style)):
+        style_image_list.append(file)
+
+    content_image_list = []
+    for file in glob.glob('./data/content/{}*'.format(args.content)):
+        content_image_list.append(file)
+    
+    
 
     style_weight = {
         'conv1_1': 1,
@@ -86,44 +89,66 @@ def main(style_name,
         'conv4_1': 1,
         'conv5_1': 1
     }
+    
+        # stylization
+    for i_style in range(len(style_image_list)):
+        style_img_name = style_image_list[i_style].split('/')
+        style_img_name = style_img_name[-1].split('.')
+        style_img_name = style_img_name[0].split('\\')[-1]
+        for i_content in range(len(content_image_list)):
+            
+            content_img_name = content_image_list[i_content].split('/')
+            content_img_name = content_img_name[-1].split('.')
+            content_img_name = content_img_name[0].split('\\')[-1]
+            
+            style = load_img(style_image_list[i_style]).to(device)
+            content = load_img(content_image_list[i_content]).to(device)
+            content_shape = plt.imread(content_image_list[i_content]).shape
+            style_feature = get_features(vgg,style)
+            content_feature = get_features(vgg,content)
+            style_grams = {layer_name: gram_matrix(style_feature[layer_name]) for layer_name in style_feature}
 
-    input_img = content.clone().requires_grad_(True).to(device)
-    optimizer = optim.LBFGS([input_img], lr=learning_rate)
-    I = [1]
-    while I[0]<iteration+1:
-        def closure():
-            I[0]+=1
-            optimizer.zero_grad()
-            input_feature = get_features(vgg,input_img)
-            content_loss = torch.mean((input_feature["conv5_1"]-content_feature["conv5_1"])**2)
-            style_loss = 0
-            for layer in style_weight:
-                input_layer = input_feature[layer]
-                input_gram = gram_matrix(input_layer)
-                b,d,h,w = input_layer.size()
-                style_gram = style_grams[layer]
-                
-                layer_style_loss = style_weight[layer]*torch.mean((input_gram-style_gram)**2)
-                style_loss += layer_style_loss/(d*h*w)
-            total_loss = alpha*content_loss + beta*style_loss
-            total_loss.backward()
-            if I[0]%50 == 0:
-                print("Iteration:{:d}, content_loss:{:.4f}, style_loss:{:.4f}".format(I[0],content_loss.item(),style_loss.item()))
-            return total_loss
-        optimizer.step(closure)
-    output_img = convert_img(input_img)
-    output_img = skimage.transform.resize(output_img,content_shape[:-1])
-    output_img = np.clip(output_img, 0, 1)
-    plt.imsave("./results/{}.jpg".format(content_name.split("_")[-1]+"_"+style_name.split("_")[-1]), output_img)
+            input_img = content.clone().requires_grad_(True).to(device)
+            optimizer = optim.LBFGS([input_img], lr=learning_rate)
+            
+            # begin stylization
+            print('processing content: {}, style: {}'.format(content_img_name, style_img_name))
+            
+            I = [1]
+            while I[0]<iteration+1:
+                def closure():
+                    I[0]+=1
+                    optimizer.zero_grad()
+                    input_feature = get_features(vgg,input_img)
+                    content_loss = torch.mean((input_feature["conv5_1"]-content_feature["conv5_1"])**2)
+                    style_loss = 0
+                    for layer in style_weight:
+                        input_layer = input_feature[layer]
+                        input_gram = gram_matrix(input_layer)
+                        b,d,h,w = input_layer.size()
+                        style_gram = style_grams[layer]
+                        
+                        layer_style_loss = style_weight[layer]*torch.mean((input_gram-style_gram)**2)
+                        style_loss += layer_style_loss/(d*h*w)
+                    total_loss = alpha*content_loss + beta*style_loss
+                    total_loss.backward()
+                    if I[0]%50 == 0:
+                        print("Iteration:{:d}, content_loss:{:.4f}, style_loss:{:.4f}".format(I[0],content_loss.item(),style_loss.item()))
+                    return total_loss
+                optimizer.step(closure)
+            output_img = convert_img(input_img)
+            output_img = skimage.transform.resize(output_img,content_shape[:-1])
+            output_img = np.clip(output_img, 0, 1)
+            plt.imsave("./results/{}_{}.png".format(content_img_name, style_img_name), output_img)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--style', type=str, default='style_picasso', help='style image name')
-    parser.add_argument('--content', type=str, default='content_dancing')
+    parser.add_argument('--style', type=str, default='', help='style image name')
+    parser.add_argument('--content', type=str, default='', help='content image name')
     parser.add_argument('--learning_rate','--lr', type=float, default=1)
     parser.add_argument('--iteration','--iter', type=int, default=400)
-    parser.add_argument('--alpha', type=float, default=1e3)
-    parser.add_argument('--beta', type=float, default=1e3)
+    parser.add_argument('--alpha', type=float, default=1)
+    parser.add_argument('--beta', type=float, default=1e17)
     parser.add_argument('--down_model','--down', type=str_to_bool, default=True)
     args = parser.parse_args()
 
