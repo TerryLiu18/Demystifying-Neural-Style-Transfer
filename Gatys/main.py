@@ -17,10 +17,9 @@ def str_to_bool(v):
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
-def load_img(img_path,imsize=512):
+def load_img(img_path):
     img = Image.open(img_path).convert('RGB')
     im_transform = transforms.Compose([
-        transforms.Resize(imsize),
         transforms.ToTensor(),
         transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
     ])
@@ -32,6 +31,7 @@ def convert_img(tensor):
     img = img.numpy().squeeze()
     img = img.transpose(1,2,0)
     img = img * np.array((0.229, 0.224, 0.225)) + np.array((0.485, 0.456, 0.406))
+    img = np.clip(img, 0, 1)
     return img
 
 def get_features(model, img):
@@ -79,8 +79,6 @@ def main(style_name,
     content_image_list = []
     for file in glob.glob('./data/content/{}*'.format(args.content)):
         content_image_list.append(file)
-    
-    
 
     style_weight = {
         'conv1_1': 1,
@@ -103,7 +101,11 @@ def main(style_name,
             
             style = load_img(style_image_list[i_style]).to(device)
             content = load_img(content_image_list[i_content]).to(device)
-            content_shape = plt.imread(content_image_list[i_content]).shape
+            
+            # resize
+            content_shape = content.shape
+            style = transforms.Resize((content_shape[2], content_shape[3]))(style)
+            
             style_feature = get_features(vgg,style)
             content_feature = get_features(vgg,content)
             style_grams = {layer_name: gram_matrix(style_feature[layer_name]) for layer_name in style_feature}
@@ -137,8 +139,6 @@ def main(style_name,
                     return total_loss
                 optimizer.step(closure)
             output_img = convert_img(input_img)
-            output_img = skimage.transform.resize(output_img,content_shape[:-1])
-            output_img = np.clip(output_img, 0, 1)
             plt.imsave("./results/{}_{}.png".format(content_img_name, style_img_name), output_img)
 
 if __name__ == '__main__':
